@@ -23,21 +23,13 @@ def generate_map_array(filename, watercolor, inverse):
        myArr.append(0)
 
     myArr.append(img_height % 1000)
-
-    # top 1px margin
-    # myArr.append(img_width % 1000 + 2)
-
-    # Toggle land/water init, comment out next line.
-    # myArr.append(0)
     color = ()
     land_count = 0
     water_count = 0
-    print("inverse enabled ?", inverse)
     if inverse:
-      print("REACHED")
       myArr.append(0)
 
-    #may need to check if water or land count hits 999, append, myArr.append(0) x2 and continue to allow for large maps      
+    #may need to check if water or land count hits 999, if it does append, reset to 0 and add myArr.append(0) to reset to current tile and continue to allow for large maps      
     for y in range(img_height):
        for x in range(img_width):
           current_color = px[x, y]
@@ -93,7 +85,7 @@ def main(argv):
          print('test.py -f <inputfile> -w <watercolor>')
          print('inputfile must be full file location of a png file.')
          print('color must be RGB format representing the color of water on the map (e.g. "12, 12, 12, 255")')
-         print('use -i or --invert to invert land/water True|False')
+         print('use -i or --invert to invert land/water')
          print('example, map has white representing water color: python py_convert_image_Tio.py -i "C:\mapfiles\indonesiaX.png" -w "255, 255, 255, 255" -i True')
          sys.exit()
       elif opt in ("-f", "--file"):
