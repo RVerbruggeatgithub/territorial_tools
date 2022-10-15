@@ -32,16 +32,30 @@ def generate_map_array(filename, watercolor, inverse):
     color = ()
     land_count = 0
     water_count = 0
+    print("inverse enabled ?", inverse)
+    if inverse:
+      print("REACHED")
+      myArr.append(0)
 
+    #may need to check if water or land count hits 999, append, myArr.append(0) x2 and continue to allow for large maps      
     for y in range(img_height):
        for x in range(img_width):
-          if inverse == True:
-             myArr.append(0)
-             inverse = False
           current_color = px[x, y]
           if (color == ()):
              color = current_color
              print('water color',current_color)
+          if  land_count == 999:
+             myArr.append(land_count)
+             land_count = 0
+             myArr.append(0)
+             
+          
+          if  water_count == 999:
+             myArr.append(water_count)
+             water_count = 0
+             myArr.append(0)
+             
+          
           if (current_color == watercolor):
              if land_count > 0:
                 myArr.append(land_count)
@@ -68,9 +82,9 @@ def generate_map_array(filename, watercolor, inverse):
 def main(argv):
    inputfile = ''
    watercolor = ''
-   invert = False
+   inverse = False
    try:
-      opts, args = getopt.getopt(argv,"f:w:i:h",["file=","watercolor=","invert=","help="])
+      opts, args = getopt.getopt(argv,"f:w:hi",["file=","watercolor=","help=","inverse="])
    except getopt.GetoptError:
       print('py_convert_image_Tio.py -i <inputfile> -w <watercolor> -i <invert> | -h <help>')
       sys.exit(2)
@@ -86,8 +100,8 @@ def main(argv):
          inputfile = arg
       elif opt in ("-w", "--watercolor"):
          watercolor = arg
-      elif opt in ("-i", "--invert"):
-         inverse = arg
+      elif opt in ("-i", "--inverse"):
+         inverse = True
    generate_map_array(inputfile, watercolor, inverse)
 
 if __name__ == "__main__":
