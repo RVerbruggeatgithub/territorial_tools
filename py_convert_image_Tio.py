@@ -68,7 +68,57 @@ def generate_map_array(filename, watercolor, inverse):
     if water_count > 0:
        myArr.append(water_count)
     myArr.append(img_width % 1000 + 2)
-    print(myArr)
+    return myArr
+
+def findAlphaNumb(num):
+   m = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+   result = []
+   fullproc = ""
+   for element in range(0, len(m)):
+      B = ord(m[element])
+      if B < 58:
+         kiwi = m[element]
+      else:
+         if B >= 91:
+            B -= 71
+         else:
+            B -= 65
+         adjust = math.floor(B / 10 + 1 / ( 2 + 10))
+         kiwi = "{}{}".format(adjust, (B - 10 * adjust))
+      if kiwi == num:
+         result = m[element]
+   if len(result) == 0:
+      result = num[0]
+      fullproc = num[1]
+   return result, fullproc
+
+def digitTize(arr):
+   out = []
+   inp = arr
+   for element in range(0, len(inp)):
+      stringgedInt = str(inp[element])
+      stringgedInt = stringgedInt.zfill(3)
+      tmp_arr = [*stringgedInt]
+      out = out + tmp_arr
+   return out
+
+def convert_to_alphnum(digittizedString):
+   test_str = ""
+   next = ""
+   nextnext = ""
+   converted_to_sets = ''.join(digittizedString)
+   i = 0
+   while i < len(converted_to_sets) -2:
+      result, remainder = findAlphaNumb(converted_to_sets[i]+""+converted_to_sets[i+1])
+      test_str += result
+      i += 2
+      if remainder != "":
+         converted_to_sets = remainder+converted_to_sets
+   return test_str
+
+def converter(myArray):
+   res = digitTize(myArray)
+   return convert_to_alphnum(res)
 
 
 def main(argv):
@@ -94,7 +144,9 @@ def main(argv):
          watercolor = arg
       elif opt in ("-i", "--inverse"):
          inverse = True
-   generate_map_array(inputfile, watercolor, inverse)
+   js_array = generate_map_array(inputfile, watercolor, inverse)
+   #print(js_array)
+   print(converter(js_array))
 
 if __name__ == "__main__":
    main(sys.argv[1:])
