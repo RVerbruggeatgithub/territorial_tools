@@ -3,10 +3,22 @@ import sys, getopt
 import math
 
 def generate_map_array(filename, watercolor, inverse):
-    im = Image.open(r""+filename)
-    watercolor = tuple(map(int, watercolor.split(', ')))
+    try:
+        im = Image.open(r""+filename)
+    except FileNotFoundError as FNFE:
+        print("Oops, couldn't find file: '{}' Try using -h for help.".format(filename))
+        sys.exit(2)
+    except AttributeError as FNFE:
+        print("Oops, did you provide an image file? Try using -h for help.")
+        sys.exit(2)
+    try:
+        watercolor = tuple(map(int, watercolor.split(', ')))
+    except ValueError as VE:
+        print("Oops, check your water color. Try using -h for help.")
+        sys.exit(2)
     img_width = im.size[0]
     img_height = im.size[1]
+    print("Now processing image... this may take a while...")
     px = im.load()
     myArr = []
 
@@ -29,24 +41,20 @@ def generate_map_array(filename, watercolor, inverse):
     if inverse:
       myArr.append(0)
 
-    #may need to check if water or land count hits 999, if it does append, reset to 0 and add myArr.append(0) to reset to current tile and continue to allow for large maps      
     for y in range(img_height):
        for x in range(img_width):
           current_color = px[x, y]
           if (color == ()):
              color = current_color
-             print('water color',current_color)
           if  land_count == 999:
              myArr.append(land_count)
              land_count = 0
              myArr.append(0)
-             
-          
+                  
           if  water_count == 999:
              myArr.append(water_count)
              water_count = 0
              myArr.append(0)
-             
           
           if (current_color == watercolor):
              if land_count > 0:
@@ -62,7 +70,6 @@ def generate_map_array(filename, watercolor, inverse):
              land_count += 1
              if (x == img_width + 1):
                 land_count += 1
-
     if land_count > 0:
        myArr.append(land_count)
     if water_count > 0:
@@ -125,18 +132,20 @@ def main(argv):
    inputfile = ''
    watercolor = ''
    inverse = False
+   print("Welcome to Shampie's Territorial.io map tool.")
    try:
       opts, args = getopt.getopt(argv,"f:w:hi",["file=","watercolor=","help=","inverse="])
    except getopt.GetoptError:
-      print('py_convert_image_Tio.py -i <inputfile> -w <watercolor> -i <invert> | -h <help>')
+      print('py_convert_image_Tio.py -f <inputfile> -w <watercolor> -i | -h <help>')
       sys.exit(2)
    for opt, arg in opts:
       if opt == '-h':
          print('test.py -f <inputfile> -w <watercolor>')
          print('inputfile must be full file location of a png file.')
-         print('color must be RGB format representing the color of water on the map (e.g. "12, 12, 12, 255")')
+         print('color must be RGBA format representing the color of water on the map (e.g. "12, 12, 12, 255"), without alpha may work to if the image has no alpha e.g. "0, 0, 0"')
          print('use -i or --invert to invert land/water')
-         print('example, map has white representing water color: python py_convert_image_Tio.py -i "C:\mapfiles\indonesiaX.png" -w "255, 255, 255, 255" -i True')
+         print('example, map has white representing water color: python py_convert_image_Tio.py -f "C:\mapfiles\indonesiaX.png" -w "255, 255, 255, 255"')
+         print('NOTE: This tool only distinguishes water color from any other color, any other color will be marked as land.')
          sys.exit()
       elif opt in ("-f", "--file"):
          inputfile = arg
@@ -146,7 +155,10 @@ def main(argv):
          inverse = True
    js_array = generate_map_array(inputfile, watercolor, inverse)
    #print(js_array)
+   print("Copy the code between the lines and paste it into the mapdata array.")
+   print("-----------------------------------------------------------------n")
    print(converter(js_array))
+   print("-----------------------------------------------------------------n")
 
 if __name__ == "__main__":
    main(sys.argv[1:])
