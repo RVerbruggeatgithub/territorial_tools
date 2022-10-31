@@ -110,6 +110,7 @@
 </form></div>
 	<div style="width: 25%; float: left">  
 	2. Click water pixel image to select a value <br />
+	<input type="checkbox" id="inverse">
 	<div id="req_color"></div><div id="hel_color" style='height: 25px; width: 25px; background-color: rgb(255, 255, 255, 255); display: block; border: thin solid black;'></div><div id="hov_color"></div></div>
 	<div style="width: 25%; float: left">3. Convert:<button id="generator" disabled>Generate</button></div>
 	<div style="width: 25%; float: left">4. Result: <br /><textarea id="output" name="output" rows="25" cols="50"></textarea></div>
@@ -137,8 +138,11 @@ const loader = document.getElementById('loader');
 const req_color = document.getElementById('req_color');
 const hov_color = document.getElementById('hov_color');
 const output = document.getElementById('output');
-var watercolor = "255, 255, 255, 255"
+var inverse = document.getElementById("inverse");
+//var watercolor = "255, 255, 255, 255"
+var watercolor = []
 var mapData = []
+var full_palette = []
 var image_width = 0
 var image_height = 0
 input.addEventListener("change", e => {
@@ -159,21 +163,30 @@ input.addEventListener("change", e => {
 	for (row = 0; row < height; row++) {
 		for (col = 0; col < width; col++) {
 			mapData.push(rgb(col, row))
+			mycolor = `${rgb(col, row)}`
+			if(full_palette.indexOf(mycolor) == -1) {
+				full_palette.push(mycolor)
+			}
 		}
 	}
 	gen_button.disabled = false
     canvas.addEventListener("mousemove", event => {
       const {offsetX: x, offsetY: y} = event;
 	  hov_color.textContent = rgb(x, y);
+	  hel_color.style.backgroundColor = "rgb("+rgb(x, y)+")";
     });
     canvas.addEventListener("click", event => {
       const {offsetX: x, offsetY: y} = event;
-      req_color.textContent = "Selected watercolor:"+rgb(x, y);
-	  hel_color.style.backgroundColor = "rgb("+rgb(x, y)+")";
+	  colors = "";
+	  for (var color in watercolor) {
+		colors += `${watercolor[color]} `
+	  }
+      req_color.textContent = `Selected watercolors: ${colors}`
+	  
 
 	  //"<span style='height: 25px; width: 25px; background-color: rgb("+rgb(x, y)+"); display: block'></span>"
 	  //.style.backgroundColor = 'rgb(' + [a,b,c].join(',') + ')';
-		watercolor = rgb(x, y)
+		watercolor.push(`${rgb(x, y)}`)
     });
   });
   image.addEventListener("error", () =>
@@ -216,28 +229,34 @@ function mapStuff(mapData, img_width, img_height, watercolor) {
 		}
     myArr.push(img_height % 1000)
 	
+	if (inverse.checked) {
+		myArr.push(0)
+	}
+	
 	for (u = 0; u < mapData.length; u++) {
 			
 		  current_color = mapData[u]
 		if (color == "") {
 			 color = current_color
 		}
-		if (land_count == 999) {
-			myArr.push(land_count)
-			land_count = 0
-			myArr.push(0)
-		}  
-		if  (water_count == 999) {
-			myArr.push(water_count)
-			water_count = 0
-			myArr.push(0)
-		}
-		if (current_color == watercolor){
+
+
+		//if (current_color == watercolor){
+		if(watercolor.indexOf(current_color) != -1) {
 			if (land_count > 0) {
 				myArr.push(land_count)
 				land_count = 0
 			}
 			water_count += 1
+			
+			//try
+			if  (water_count == 999) {
+				console.log("PONG")
+				myArr.push(water_count)
+				water_count = 0
+				myArr.push(0)
+			}
+			
 		}
 		 //if (u == img_width + 1){
 		//	water_count += 1
@@ -251,6 +270,12 @@ function mapStuff(mapData, img_width, img_height, watercolor) {
 		 //if (u == img_width + 1) {
 		//	land_count += 1
 		//	}
+			if (land_count == 999) {
+				console.log("PING")
+				myArr.push(land_count)
+				land_count = 0
+				myArr.push(0)
+			}  
 		}
 		
 	}
