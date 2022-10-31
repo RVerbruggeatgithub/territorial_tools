@@ -25,6 +25,7 @@ Update 1:
 2. use the python script to convert the image into Alphanumerically condensed data.
 3. Copy the condensed data into the territorial_mod.html file line 397, 398, 399 or 400: replace the content of k="...."  with the generated data from step 2. Line 403 has the names of the maps.
 4. Load flipside.html into Edge or Chrome and pick the custom map.. play on!
+
 ===
 Update 2:
 1. Get a map or image you want to import
